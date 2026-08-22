@@ -69,7 +69,7 @@ public class SecurityConfig {
         configuration.setAllowedOrigins(Arrays.asList(
                 "http://localhost:5173",  // ✅ Local Vite dev server
                 "http://localhost:5174",  // ✅ Alternative local port
-                "https://stockxpress.vercel.app",  // ✅ Production Vercel domain
+                "https://stock-xpress-frontend.vercel.app",  // ✅ Production Vercel domain
                 "https://stockxpress-git-main.vercel.app",  // ✅ Main branch preview
                 "https://stockxpress-*.vercel.app"  // ✅ All preview deployments
         ));
