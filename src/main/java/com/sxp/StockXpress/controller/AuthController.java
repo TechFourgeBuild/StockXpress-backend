@@ -6,6 +6,7 @@ import com.sxp.StockXpress.dto.RegisterRequest;
 import com.sxp.StockXpress.dto.UserProfileResponse;
 import com.sxp.StockXpress.entity.User;
 import com.sxp.StockXpress.enums.Role;
+import com.sxp.StockXpress.exception.DuplicateResourceException;
 import com.sxp.StockXpress.exception.TokenRefreshException;
 import com.sxp.StockXpress.repository.UserRepository;
 import com.sxp.StockXpress.security.jwt.JwtUtil;
@@ -53,8 +54,7 @@ public class AuthController {
     public ResponseEntity<?> register(@RequestBody RegisterRequest registerRequest) {
         // ✅ Check if email already exists
         if (userRepository.findByEmail(registerRequest.getEmail()).isPresent()) {
-            return ResponseEntity.badRequest()
-                    .body("Email already registered! Please login.");
+            throw new DuplicateResourceException("Email already registered! Please login.");
         }
 
         // ✅ Create new user
