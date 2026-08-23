@@ -74,25 +74,8 @@ StockXpress is a **B2B Inventory & Warehouse Management System** built as a REST
 ### 2.1 🖼️ High-Level Component Diagram
 
 ```
-                         HTTPS (TLS 1.2/1.3)
-┌──────────────────┐  ───────────────────────>  ┌─────────────────────────────────────┐
-│                   │                            │      Google Cloud VM (e2-micro)       │
-│  React Frontend   │                            │      Ubuntu 22.04 LTS · us-central1   │
-│  (Vercel)         │                            │                                        │
-│                   │  <───────────────────────  │  ┌──────────┐        ┌─────────────┐  │
-└──────────────────┘        JSON / REST          │  │  Nginx   │──────> │   Docker     │  │
-                                                  │  │ (reverse │  :8081 │   Container   │  │
-                                                  │  │ proxy +  │        │  Spring Boot  │  │
-                                                  │  │ SSL      │        │  :8080        │  │
-                                                  │  │ term.)   │        └──────┬────────┘  │
-                                                  │  └──────────┘               │           │
-                                                  └────────────────────────────┼───────────┘
-                                                                                 │ JDBC/SSL
-                                                                                 ▼
-                                                                  ┌─────────────────────────┐
-                                                                  │   Aiven PostgreSQL        │
-                                                                  │   (managed, cloud-hosted) │
-                                                                  └─────────────────────────┘
+<img width="1060" height="654" alt="image" src="https://github.com/user-attachments/assets/72dbfc04-701d-474d-89c3-cf41d0eab9f6" />
+
 ```
 
 ### 2.2 🔃 Request Lifecycle
