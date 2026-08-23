@@ -73,10 +73,7 @@ StockXpress is a **B2B Inventory & Warehouse Management System** built as a REST
 
 ### 2.1 🖼️ High-Level Component Diagram
 
-```
 <img width="1060" height="654" alt="image" src="https://github.com/user-attachments/assets/72dbfc04-701d-474d-89c3-cf41d0eab9f6" />
-
-```
 
 ### 2.2 🔃 Request Lifecycle
 
