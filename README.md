@@ -85,19 +85,7 @@ StockXpress is a **B2B Inventory & Warehouse Management System** built as a REST
 
 ### 2.3 🧱 Layered Architecture
 
-```
-┌─────────────────────────────────────────────┐
-│  Controller Layer   (REST endpoints, DTOs)   │
-├─────────────────────────────────────────────┤
-│  Service Layer      (business logic,          │
-│                       transaction boundaries)  │
-├─────────────────────────────────────────────┤
-│  Repository Layer   (Spring Data JPA)         │
-├─────────────────────────────────────────────┤
-│  Entity Layer        (JPA-mapped domain model) │
-└─────────────────────────────────────────────┘
-        Cross-cutting: Security, Exception Handling, Validation
-```
+<img width="1472" height="800" alt="image" src="https://github.com/user-attachments/assets/6e3a250e-9c4c-4c0c-8020-cf459bffc764" />
 
 ---
 
