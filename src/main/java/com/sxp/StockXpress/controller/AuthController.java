@@ -54,7 +54,7 @@ public class AuthController {
     public ResponseEntity<?> register(@RequestBody RegisterRequest registerRequest) {
         // ✅ Check if email already exists
         if (userRepository.findByEmail(registerRequest.getEmail()).isPresent()) {
-            throw new DuplicateResourceException("Email already registered! Please login.");
+            throw new DuplicateResourceException("Email already registered!");
         }
 
         // ✅ Create new user
