@@ -35,7 +35,7 @@ public class OpenApiConfig {
                         .contact(new Contact()
                                 .name("StockXpress Team")
                                 .email("support@stockxpress.com")
-                                .url("https://github.com/yourusername/stockxpress"))
+                                .url("stock-xpress-frontend.vercel.app"))
                         .license(new License()
                                 .name("MIT License")
                                 .url("https://opensource.org/licenses/MIT")))
