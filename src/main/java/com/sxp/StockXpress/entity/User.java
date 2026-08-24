@@ -42,6 +42,6 @@ public class User {
     private LocalDateTime updatedAt;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Order> orders;  // ✅ Uncomment and add proper mapping
+    private List<Order> orders;
 
 }

@@ -20,26 +20,26 @@ public class InventoryLog {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id",nullable = false)
-    private Product product;     // ✅ Kis product ka stock change hua
+    private Product product;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "changed_by",nullable = false)
-    private User changedBy;        // ✅ Kisne change kiya (User)
+    private User changedBy;
 
     @Column(nullable = false)
-    private Integer oldQuantity;   // ✅ Previous stock value
+    private Integer oldQuantity;
 
     @Column(nullable = false)
-    private Integer newQuantity;    // ✅ New stock value
+    private Integer newQuantity;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private ChangeType changeType;    // ✅ ADDED, DEDUCTED, ADJUSTED
+    private ChangeType changeType;
 
     @Column(length = 500)
-    private String reason;     // ✅ Kyun hua change (Order placed, Manual update, etc.)
+    private String reason;
 
     @CreationTimestamp
     @Column(updatable = false)
-    private LocalDateTime timestamp;   // ✅ Kab hua change
+    private LocalDateTime timestamp;
 }

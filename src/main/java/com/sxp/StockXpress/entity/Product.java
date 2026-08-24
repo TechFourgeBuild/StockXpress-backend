@@ -32,13 +32,13 @@ public class Product {
     private Integer availableQuantity = 0;
 
     @Column(nullable = false)
-    private String category;     // e.g., Electronics, Grocery, Fashion
+    private String category;
 
     @Column(length = 600)
-    private String imageUrl;     // optional — product image
+    private String imageUrl;
 
     @Version
-    private Integer version; // 🔥 Optimistic Locking — concurrency ka hero!
+    private Integer version;
 
     @CreationTimestamp
     @Column(updatable = false)

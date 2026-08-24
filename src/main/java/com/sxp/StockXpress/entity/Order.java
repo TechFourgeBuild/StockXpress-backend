@@ -22,25 +22,25 @@ public class Order {
     private Long id;
 
     @Column(unique = true,nullable = false)
-    private String orderNumber;       // ✅ UUID — unique order reference
+    private String orderNumber;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id",nullable = false)
-    private User user;      // ✅ Who placed the order
+    private User user;
 
     @Column(nullable = false)
-    private Double totalAmount;   // ✅ Total bill amount
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private OrderStatus status;   // ✅ PENDING, CONFIRMED, SHIPPED, DELIVERED, CANCELLED
+    private Double totalAmount;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private PaymentStatus paymentStatus; // ✅ PENDING, PAID, FAILED, REFUNDED
+    private OrderStatus status;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private PaymentStatus paymentStatus;
 
     @Column(length = 500)
-    private String shippingAddress;    // ✅ Delivery address
+    private String shippingAddress;
 
     private LocalDateTime deliveryDate;
 

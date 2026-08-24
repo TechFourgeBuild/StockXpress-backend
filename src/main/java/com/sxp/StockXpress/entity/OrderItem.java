@@ -30,10 +30,10 @@ public class OrderItem {
     private Integer quantity;
 
     @Column(nullable = false)
-    private Double pricePerUnit;  // ✅ Snapshot — product price at order time
+    private Double pricePerUnit;
 
     @Column(nullable = false)
-    private Double totalPrice;    // ✅ quantity × pricePerUnit
+    private Double totalPrice;
 
     @CreationTimestamp
     @Column(updatable = false)
