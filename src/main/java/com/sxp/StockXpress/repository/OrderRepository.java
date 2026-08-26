@@ -12,32 +12,33 @@ import java.util.Optional;
 
 public interface OrderRepository extends JpaRepository<Order,Long> {
 
-    // ✅ Find orders by user ID
+
     List<Order> findByUserId(Long userId);
 
-    // ✅ Find orders by user ID with sorting (latest first)
+
     List<Order> findByUserIdOrderByCreatedAtDesc(Long userId);
 
-    // ✅ Find orders by status
+
     List<Order> findByStatus(OrderStatus status);
 
-    // ✅ Find orders by user and status
+
     List<Order> findByUserIdAndStatus(Long userId, OrderStatus status);
 
-    // ✅ Check if order exists by order number
+
     boolean existsByOrderNumber(String orderNumber);
 
-    // ✅ Find order by order number
+
     Optional<Order> findByOrderNumber(String orderNumber);
 
-    // ✅ Get total revenue (for admin dashboard)
-    @Query("SELECT COALESCE(SUM(o.totalAmount), 0.0) FROM Order o WHERE o.status != 'CANCELLED'")
-    Double getTotalRevenue();  // ✅ Returns 0.0 if no orders
 
-    // ✅ Get orders in last N days
+    @Query("SELECT COALESCE(SUM(o.totalAmount), 0.0) FROM Order o WHERE o.status != 'CANCELLED'")
+    Double getTotalRevenue();
+
+
     @Query("SELECT o FROM Order o WHERE o.createdAt >= :date")
     List<Order> findOrdersFromLastDays(@Param("date") LocalDateTime date);
 
+    // Entity-based delete (not bulk) — ensures OrderItem cascade-delete triggers properly
     void deleteByUserId(Long userId);
 
 }
