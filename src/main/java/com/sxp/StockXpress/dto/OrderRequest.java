@@ -12,5 +12,5 @@ import java.util.List;
 @AllArgsConstructor
 public class OrderRequest {
     private String shippingAddress;
-    private List<OrderItemRequest> items;  // ✅ List of products with quantity
+    private List<OrderItemRequest> items;  //  List of products with quantity
 }

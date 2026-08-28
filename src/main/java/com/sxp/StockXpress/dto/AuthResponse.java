@@ -14,13 +14,13 @@ public class AuthResponse {
     private String email;
     private String name;
 
-    // ✅ Sirf accessToken wala constructor
+    //  Sirf accessToken wala constructor
     public AuthResponse(String accessToken) {
         this.accessToken = accessToken;
         this.tokenType = "Bearer";
     }
 
-    // ✅ Constructor with all fields
+    //  Constructor with all fields
     public AuthResponse(String accessToken, String role, String email, String name) {
         this.accessToken = accessToken;
         this.tokenType = "Bearer";

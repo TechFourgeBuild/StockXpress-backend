@@ -12,5 +12,5 @@ public class AdminRegisterRequest {
     private String name;
     private String email;
     private String password;
-    private Role role;  // ✅ WAREHOUSE_MANAGER or ADMIN
+    private Role role;  //  WAREHOUSE_MANAGER or ADMIN
 }
