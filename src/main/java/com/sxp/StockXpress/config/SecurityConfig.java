@@ -47,7 +47,7 @@ public class SecurityConfig {
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder(12);  // ✅ 12 rounds of hashing
+        return new BCryptPasswordEncoder(12);
     }
 
     @Bean
@@ -55,50 +55,45 @@ public class SecurityConfig {
         return config.getAuthenticationManager();
     }
 
-    // ============================================================
-    // ✅ CORS CONFIGURATION — Frontend access ke liye
-    // ============================================================
+
+    //  CORS CONFIGURATION For Frontend access
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        // 🎯 Frontend origins allow karo:
-        // (a) Local development — Vite default port 5173
-        // (b) Production — Vercel domain
-        // Yeh combination frontend ko backend APIs access karne degi
         configuration.setAllowedOrigins(Arrays.asList(
-                "http://localhost:5173",  // ✅ Local Vite dev server
-                "http://localhost:5174",  // ✅ Alternative local port
-                "https://stock-xpress-frontend.vercel.app",  // ✅ Production Vercel domain
-                "https://stockxpress-git-main.vercel.app",  // ✅ Main branch preview
-                "https://stockxpress-*.vercel.app"  // ✅ All preview deployments
+                "http://localhost:5173",  //  Local Vite dev server
+                "http://localhost:5174",  //  Alternative local port
+                "https://stock-xpress-frontend.vercel.app",  //  Production Vercel domain
+                "https://stockxpress-git-main.vercel.app",  //  Main branch preview
+                "https://stockxpress-*.vercel.app"  //  All preview deployments
         ));
 
-        // 🎯 Cookies (Refresh Token) allow karo
+        //  Cookies (Refresh Token) allow
         configuration.setAllowCredentials(true);
 
-        // ✅ Allow all headers
+        //  Allow all headers
         configuration.setAllowedHeaders(Arrays.asList(
-                "Authorization",    // ✅ JWT token
-                "Content-Type",     // ✅ JSON body
-                "Accept",           // ✅ Response type
-                "X-Requested-With", // ✅ AJAX requests
-                "Cookie",           // ✅ Refresh token cookie
-                "Set-Cookie"        // ✅ Set-Cookie header
+                "Authorization",    //  JWT token
+                "Content-Type",     //  JSON body
+                "Accept",           //  Response type
+                "X-Requested-With", //  AJAX requests
+                "Cookie",           //  Refresh token cookie
+                "Set-Cookie"        //  Set-Cookie header
         ));
 
-        // ✅ Allow all HTTP methods
+        //  Allow all HTTP methods
         configuration.setAllowedMethods(Arrays.asList(
                 "GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"
         ));
 
-        // ✅ Expose headers to frontend
+        //  Expose headers to frontend
         configuration.setExposedHeaders(Arrays.asList(
                 "Authorization",
                 "Set-Cookie"
         ));
 
-        // ✅ Max age for preflight requests (1 hour)
+        //  Max age for preflight requests (1 hour)
         configuration.setMaxAge(3600L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
@@ -109,22 +104,18 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()))  // ✅ ENABLE CORS
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))  //  ENABLE CORS
                 .csrf(AbstractHttpConfigurer::disable)
-                // 🎯 Access-token stateless hai. Refresh-token cookie hai, PAR:
-                // (a) HttpOnly + path-scoped hai, (b) SameSite=Strict hoga production
-                // ye combination CSRF-risk ko significantly kam kar deta hai
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
-                                "/api/v1/auth/register",  // ✅ Register public
-                                "/api/v1/auth/login",   // ✅ Login public
-                                "/api/v1/auth/refresh-token",  // ✅ Refresh public (cookie se aayega)
+                                "/api/v1/auth/register",  //  Register public
+                                "/api/v1/auth/login",   //  Login public
+                                "/api/v1/auth/refresh-token",  //  Refresh public (from cookie)
                                 "/api/v1/public/**",
 
-
-                                // ✅ SWAGGER PATHS — API DOCS
+                                //  SWAGGER PATHS — API DOCS
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
                                 "/swagger-ui/index.html",
@@ -133,9 +124,9 @@ public class SecurityConfig {
                                 "/v3/api-docs/**",
                                 "/v3/api-docs"
                         ).permitAll()
-                        .requestMatchers("/api/v1/auth/logout").authenticated()  // 🔒 LOGOUT - authenticated user
-                        .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")  // 👑 ADMIN ONLY
-                        .requestMatchers("/api/v1/warehouseManager/**").hasAnyRole("WAREHOUSE_MANAGER", "ADMIN") // 🏭 WAREHOUSE_MANAGER + ADMIN (Admin = God!)
+                        .requestMatchers("/api/v1/auth/logout").authenticated()  //  LOGOUT - authenticated user
+                        .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")  //  ADMIN ONLY
+                        .requestMatchers("/api/v1/warehouseManager/**").hasAnyRole("WAREHOUSE_MANAGER", "ADMIN") //  WAREHOUSE_MANAGER + ADMIN
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(ex ->

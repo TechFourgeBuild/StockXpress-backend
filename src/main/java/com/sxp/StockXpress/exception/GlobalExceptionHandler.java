@@ -13,49 +13,49 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    // ✅ Handle Token Refresh Exception
+    //  Handle Token Refresh Exception
     @ExceptionHandler(TokenRefreshException.class)
     public ResponseEntity<Map<String, String>> handleTokenRefresh(TokenRefreshException ex) {
         return ResponseEntity.status(HttpStatus.FORBIDDEN)
                 .body(Map.of("error", ex.getMessage()));
     }
 
-    // ✅ Handle Bad Credentials
+    //  Handle Bad Credentials
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<Map<String, String>> handleBadCredentials(Exception ex) {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .body(Map.of("error", "Invalid email or password"));
     }
 
-    // ✅ Handle Duplicate Resource (Email already exists)
+    //  Handle Duplicate Resource (Email already exists)
     @ExceptionHandler(DuplicateResourceException.class)
     public ResponseEntity<Map<String, String>> handleDuplicateResource(DuplicateResourceException ex) {
         return ResponseEntity.status(HttpStatus.CONFLICT)
                 .body(Map.of("error", ex.getMessage()));
     }
 
-    // ✅ Handle Business Exception
+    //  Handle Business Exception
     @ExceptionHandler(BusinessException.class)
     public ResponseEntity<Map<String, String>> handleBusinessException(BusinessException ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(Map.of("error", ex.getMessage()));
     }
 
-    // ✅ Handle Resource Not Found
+    //  Handle Resource Not Found
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<Map<String, String>> handleResourceNotFound(ResourceNotFoundException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(Map.of("error", ex.getMessage()));
     }
 
-    // ✅ Handle Unauthorized Access
+    //  Handle Unauthorized Access
     @ExceptionHandler(UnauthorizedAccessException.class)
     public ResponseEntity<Map<String, String>> handleUnauthorizedAccess(UnauthorizedAccessException ex) {
         return ResponseEntity.status(HttpStatus.FORBIDDEN)
                 .body(Map.of("error", ex.getMessage()));
     }
 
-    // ✅ Handle Validation Errors (if any)
+    //  Handle Validation Errors (if any)
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, String>> handleValidationErrors(MethodArgumentNotValidException ex) {
         Map<String, String> errors = new HashMap<>();
@@ -66,7 +66,7 @@ public class GlobalExceptionHandler {
                 .body(Map.of("errors", errors.toString()));
     }
 
-    // ✅ Handle All Other Exceptions (Generic)
+    //  Handle All Other Exceptions (Generic)
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, String>> handleGenericException(Exception ex) {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)

@@ -16,7 +16,7 @@ public class CookieUtil {
                 .secure(true)
                 .path("/api/v1/auth")
                 .maxAge(30 * 24 * 60 * 60)
-                .sameSite("None")   // ✅ Strict → None
+                .sameSite("None")   //  Strict → None
                 .build();
         response.addHeader("Set-Cookie", cookie.toString());
     }

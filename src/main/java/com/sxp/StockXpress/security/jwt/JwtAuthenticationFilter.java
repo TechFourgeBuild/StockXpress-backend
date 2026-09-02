@@ -33,16 +33,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
-            return;  // ✅ Early return
-        }  // ✅ YEH BRACE MISSING THA!
+            return;
+        }
 
         final String jwt = authHeader.substring(7);
-        final String username = jwtUtil.extractUsername(jwt, false);  // ✅ false = access token
+        final String username = jwtUtil.extractUsername(jwt, false);
 
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
-            if (jwtUtil.validateAccessToken(jwt, userDetails)) {  // ✅ validateAccessToken use karo
+            if (jwtUtil.validateAccessToken(jwt, userDetails)) {
                 UsernamePasswordAuthenticationToken authToken =
                         new UsernamePasswordAuthenticationToken(
                                 userDetails,
