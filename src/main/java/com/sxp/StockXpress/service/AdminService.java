@@ -34,19 +34,18 @@ public class AdminService {
     private final OrderItemRepository orderItemRepository;
     private final InventoryLogRepository inventoryLogRepository;
 
-    // ============================================================
-    // 1️⃣ GET DASHBOARD STATISTICS
-    // ============================================================
+
+    //  GET DASHBOARD STATISTICS
     public DashboardStatsResponse getDashboardStats() {
         Long totalUsers = userRepository.count();
         Long totalProducts = productRepository.count();
         Long totalOrders = orderRepository.count();
         Double totalRevenue = orderRepository.getTotalRevenue();
 
-        // ✅ Get pending orders
+        //  Get pending orders
         Long pendingOrders = orderRepository.findByStatus(OrderStatus.PENDING).stream().count();
 
-        // ✅ Get low stock products (threshold = 5)
+        //  Get low stock products (threshold = 5)
         Long lowStockProducts = (long) productRepository.findLowStockProducts(5).size();
 
         log.info("📊 Dashboard stats fetched: Users={}, Products={}, Orders={}, Revenue={}", totalUsers, totalProducts, totalOrders,totalRevenue);
@@ -61,67 +60,60 @@ public class AdminService {
                 .build();
     }
 
-    // ============================================================
-    // 2️⃣ GET ORDERS IN LAST N DAYS
-    // ============================================================
+
+    //  GET ORDERS IN LAST N DAYS
     public Long getOrdersInLastDays(int days) {
         LocalDateTime date = LocalDateTime.now().minusDays(days);
         return (long) orderRepository.findOrdersFromLastDays(date).size();
     }
 
-    // ============================================================
-    // 3️⃣ GET TOTAL REVENUE
-    // ============================================================
+
+    //  GET TOTAL REVENUE
     public Double getTotalRevenue() {
         Double revenue = orderRepository.getTotalRevenue();
         return revenue != null ? revenue : 0.0;
     }
 
-    // ============================================================
-    // 4️⃣ GET TOTAL USERS
-    // ============================================================
+
+    //  GET TOTAL USERS
     public Long getTotalUsers() {
         return userRepository.count();
     }
 
-    // ============================================================
-    // 5️⃣ GET TOTAL PRODUCTS
-    // ============================================================
+
+    //  GET TOTAL PRODUCTS
     public Long getTotalProducts() {
         return productRepository.count();
     }
 
-    // ============================================================
-    // 6️⃣ GET PENDING ORDERS COUNT
-    // ============================================================
+
+    //  GET PENDING ORDERS COUNT
     public Long getPendingOrdersCount() {
         return (long) orderRepository.findByStatus(OrderStatus.PENDING).size();
     }
 
-    // ============================================================
-    // 7️⃣ GET LOW STOCK PRODUCTS COUNT
-    // ============================================================
+
+    //  GET LOW STOCK PRODUCTS COUNT
     public Long getLowStockProductsCount(int threshold) {
         return (long) productRepository.findLowStockProducts(threshold).size();
     }
 
-    // ============================================================
-    // 👑 ADMIN — Register User with Role
-    // ============================================================
+
+    //  ADMIN — Register User with Role
     @Transactional
     public String registerUserWithRole(AdminRegisterRequest request) {
 
-        // ✅ Check if email already exists
+        //  Check if email already exists
         if (userRepository.findByEmail(request.getEmail()).isPresent()) {
             throw new BusinessException("Email already registered!");
         }
 
-        // ✅ Validate role (only WAREHOUSE_MANAGER or ADMIN allowed)
+        //  Validate role (only WAREHOUSE_MANAGER or ADMIN allowed)
         if (request.getRole() == Role.CUSTOMER) {
             throw new BusinessException("Use /register for CUSTOMER role");
         }
 
-        // ✅ Create user with specified role
+        //  Create user with specified role
         User user = User.builder()
                 .name(request.getName())
                 .email(request.getEmail())
@@ -135,9 +127,8 @@ public class AdminService {
         return "User registered successfully with role: " + request.getRole();
     }
 
-    // ============================================================
+
     // 👥 ADMIN — Get all users
-    // ============================================================
     public List<UserResponse> getAllUsers() {
         List<User> users = userRepository.findAll();
         return users.stream()
@@ -145,24 +136,22 @@ public class AdminService {
                 .collect(Collectors.toList());
     }
 
-    // ============================================================
+
     // 👥 ADMIN — Get user by ID
-    // ============================================================
     public UserResponse getUserById(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + userId));
         return mapToUserResponse(user);
     }
 
-    // ============================================================
+
     // 👥 ADMIN — Update user role
-    // ============================================================
     @Transactional
     public UserResponse updateUserRole(Long userId, Role newRole) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + userId));
 
-        // ✅ Prevent admin from downgrading themselves
+        //  Prevent admin from downgrading themselves
          String currentUserEmail = SecurityContextHolder.getContext().getAuthentication().getName();
          User currentUser = userRepository.findByEmail(currentUserEmail)
                  .orElseThrow(() -> new ResourceNotFoundException("Current user not found"));
@@ -181,7 +170,7 @@ public class AdminService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + userId));
 
-        // ✅ Prevent admin from deleting themselves
+        //  Prevent admin from deleting themselves
          String currentUserEmail = SecurityContextHolder.getContext().getAuthentication().getName();
          User currentUser = userRepository.findByEmail(currentUserEmail)
                  .orElseThrow(() -> new ResourceNotFoundException("Current user not found"));
@@ -189,18 +178,18 @@ public class AdminService {
              throw new BusinessException("You cannot delete your own account");
          }
 
-        // ✅ First, delete all refresh tokens for this user
+        //  First, delete all refresh tokens for this user
         refreshTokenRepository.deleteByUserId(userId);
 
-        // ✅ Step 2: Get all orders of this user
+        //  Step 2: Get all orders of this user
         List<Order> orders = orderRepository.findByUserId(userId);
 
-        // ✅ Step 3: Delete order_items first (via OrderItemRepository)
+        //  Step 3: Delete order_items first (via OrderItemRepository)
         for (Order order : orders) {
             orderItemRepository.deleteByOrderId(order.getId());
         }
 
-        // ✅ Delete orders (cascade will handle order_items)
+        // Step 4: Delete user by it's id
         orderRepository.deleteByUserId(userId);
 
         // 5. Delete inventory logs
@@ -210,9 +199,8 @@ public class AdminService {
         log.info("🗑️ User deleted: {} ({})", user.getName(), user.getEmail());
     }
 
-    // ============================================================
+
     // PRIVATE HELPERS
-    // ============================================================
     private UserResponse mapToUserResponse(User user) {
         return new UserResponse(
                 user.getId(),

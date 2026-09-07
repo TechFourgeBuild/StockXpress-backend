@@ -41,9 +41,8 @@ public class OrderService {
     private final UserService userService;
     private final InventoryLogService inventoryLogService;
 
-    // ============================================================
-    // 1️⃣ 🔥 PLACE ORDER — WITH OPTIMISTIC LOCKING & TRANSACTION
-    // ============================================================
+
+    //  PLACE ORDER — WITH OPTIMISTIC LOCKING & TRANSACTION
     @Transactional
     @Retryable(
             value = OptimisticLockingFailureException.class,
@@ -51,13 +50,13 @@ public class OrderService {
             backoff = @Backoff(delay = 100)
     )
     public OrderResponse placeOrder(OrderRequest request) {
-        // ✅ Get current logged-in user
+        //  Get current logged-in user
         User currentUser = userService.getCurrentUser();
 
-        // ✅ Generate unique order number
+        //  Generate unique order number
         String orderNumber = generateOrderNumber();
 
-        // ✅ Create Order entity
+        //  Create Order entity
         Order order = Order.builder()
                 .orderNumber(orderNumber)
                 .user(currentUser)
@@ -67,21 +66,21 @@ public class OrderService {
                 .totalAmount(0.0)
                 .build();
 
-        // ✅ Save order first to get ID
+        //  Save order first to get ID
         Order savedOrder = orderRepository.save(order);
 
-        // ✅ Process each time
+        //  Process each time
         List<OrderItem> orderItems = new ArrayList<>();
         double totalAmount = 0.0;
 
         for(OrderItemRequest itemRequest : request.getItems()) {
-            // ✅ Get product with version
+            //  Get product with version
             Product product = productRepository.findById(itemRequest.getProductId())
                     .orElseThrow(()->new ResourceNotFoundException(
                             "Product not found with ID: "+itemRequest.getProductId()
                     ));
 
-            // ✅ check stock availability
+            //  check stock availability
             if(product.getAvailableQuantity()<itemRequest.getQuantity()) {
                 throw new BusinessException(
                         "Insufficient stock for product: "+product.getName()+
@@ -89,7 +88,7 @@ public class OrderService {
                 );
             }
 
-            // ✅ Deduct stock using Optimistic Locking
+            //  Deduct stock using Optimistic Locking
             int updateRows = productRepository.updateStockWithVersion(
                     product.getId(),
                     product.getAvailableQuantity()-itemRequest.getQuantity(),
@@ -103,13 +102,13 @@ public class OrderService {
                 );
             }
 
-            // ✅ Refresh product to get updated version and quantity
+            //  Refresh product to get updated version and quantity
             Product updateProduct = productRepository.findById(product.getId())
                     .orElseThrow(()->new ResourceNotFoundException(
                             "Product not found  with ID: "+product.getId()
                     ));
 
-            // ✅ Create OrderItem
+            //  Create OrderItem
             OrderItem orderItem = OrderItem.builder()
                     .order(savedOrder)
                     .product(updateProduct)
@@ -121,7 +120,7 @@ public class OrderService {
             orderItems.add(orderItem);
             totalAmount += orderItem.getTotalPrice();
 
-            // ✅ Log inventory change (DEDUCTED)
+            //  Log inventory change (DEDUCTED)
             inventoryLogService.logStockChange(
                     product.getId(),
                     currentUser.getId(),
@@ -132,12 +131,12 @@ public class OrderService {
             );
         }
 
-        // ✅ Save all OrderItems
+        //  Save all OrderItems
         orderItemRepository.saveAll(orderItems);
 
-        // ✅ Update order total amount
+        //  Update order total amount
         savedOrder.setTotalAmount(totalAmount);
-        savedOrder.setPaymentStatus(PaymentStatus.PAID);  // ✅ Assuming payment success
+        savedOrder.setPaymentStatus(PaymentStatus.PAID);  //  Assuming payment success
         savedOrder.setStatus(OrderStatus.CONFIRMED);
 
         Order finalOrder = orderRepository.save(savedOrder);
@@ -147,9 +146,8 @@ public class OrderService {
         return mapToResponse(finalOrder, orderItems);
     }
 
-    // ============================================================
-    // 2️⃣ GET ORDER BY ID
-    // ============================================================
+
+    //  GET ORDER BY ID
     public OrderResponse getOrderById(Long id) {
         Order order = orderRepository.findById(id)
                 .orElseThrow(()->new ResourceNotFoundException("Order not found with ID: "+id));
@@ -158,9 +156,8 @@ public class OrderService {
         return mapToResponse(order, orderItems);
     }
 
-    // ============================================================
-    // 3️⃣ GET ORDER BY ORDER NUMBER
-    // ============================================================
+
+    //  GET ORDER BY ORDER NUMBER
     public OrderResponse getOrderByNumber(String orderNumber) {
         Order order = orderRepository.findByOrderNumber(orderNumber)
                 .orElseThrow(()->new ResourceNotFoundException(
@@ -171,9 +168,8 @@ public class OrderService {
         return mapToResponse(order, orderItems);
     }
 
-    // ============================================================
-    // 4️⃣ GET ALL ORDERS OF LOGGED-IN USER
-    // ============================================================
+
+    //  GET ALL ORDERS OF LOGGED-IN USER
     public List<OrderResponse> getUserOrders() {
         User currentUser = userService.getCurrentUser();
         List<Order> orders = orderRepository.findByUserIdOrderByCreatedAtDesc(currentUser.getId());
@@ -185,9 +181,8 @@ public class OrderService {
                 }).collect(Collectors.toList());
     }
 
-    // ============================================================
-    // 5️⃣ GET ALL ORDERS (ADMIN / WAREHOUSE_MANAGER)
-    // ============================================================
+
+    //  GET ALL ORDERS (ADMIN / WAREHOUSE_MANAGER)
     public List<OrderResponse> getAllOrders() {
         List<Order> orders = orderRepository.findAll();
 
@@ -198,15 +193,14 @@ public class OrderService {
                 }).collect(Collectors.toList());
     }
 
-    // ============================================================
-    // 6️⃣ CANCEL ORDER — RESTORE STOCK
-    // ============================================================
+
+    //  CANCEL ORDER — RESTORE STOCK
     @Transactional
     public OrderResponse cancelOrder(Long orderId) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(()->new ResourceNotFoundException("Order not found with ID: "+orderId));
 
-        // ✅ Check if order can be cancelled
+        //  Check if order can be cancelled
         if(order.getStatus()==OrderStatus.DELIVERED || order.getStatus()==OrderStatus.CANCELLED) {
             throw new BusinessException(
                     "Order cannot be cancelled. Current status: "+order.getStatus()
@@ -215,7 +209,7 @@ public class OrderService {
 
         User currentUser = userService.getCurrentUser();
 
-        // ✅ Restore stock for each item
+        //  Restore stock for each item
         List<OrderItem> orderItems = orderItemRepository.findByOrderId(orderId);
 
         for(OrderItem item : orderItems) {
@@ -227,7 +221,7 @@ public class OrderService {
             Integer oldQuantity = product.getAvailableQuantity();
             Integer newQuantity = oldQuantity + item.getQuantity();
 
-            // ✅ Update stock using Optimistic Locking
+            //  Update stock using Optimistic Locking
             int updateRows = productRepository.updateStockWithVersion(
                     product.getId(),
                     newQuantity,
@@ -247,7 +241,7 @@ public class OrderService {
                             "Product not found with ID: "+product.getId()
                     ));
 
-            // ✅ Log inventory change (ADDED)
+            //  Log inventory change (ADDED)
             inventoryLogService.logStockChange(
                     product.getId(),
                     currentUser.getId(),
@@ -258,7 +252,7 @@ public class OrderService {
             );
         }
 
-        // ✅ Update order status
+        //  Update order status
         order.setStatus(OrderStatus.CANCELLED);
         Order cancelledOrder = orderRepository.save(order);
 
@@ -267,15 +261,14 @@ public class OrderService {
         return mapToResponse(cancelledOrder, orderItems);
     }
 
-    // ============================================================
-    // 7️⃣ UPDATE ORDER STATUS (ADMIN / WAREHOUSE_MANAGER)
-    // ============================================================
+
+    //  UPDATE ORDER STATUS (ADMIN / WAREHOUSE_MANAGER)
     @Transactional
     public OrderResponse updateOrderStatus(Long orderId, OrderStatus newStatus) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(()->new ResourceNotFoundException("Order not found with ID: "+orderId));
 
-        // ✅ Validate status transition
+        //  Validate status transition
         if(order.getStatus()==OrderStatus.CANCELLED && newStatus != OrderStatus.CANCELLED) {
             throw new BusinessException("Cancelled order cannot be updated to: "+newStatus);
         }
@@ -286,7 +279,7 @@ public class OrderService {
 
         order.setStatus(newStatus);
 
-        // ✅ If delivered, set delivery date
+        //  If delivered, set delivery date
         if(newStatus == OrderStatus.DELIVERED) {
             order.setDeliveryDate(LocalDateTime.now());
         }
@@ -300,9 +293,8 @@ public class OrderService {
         return mapToResponse(updatedOrder, orderItems);
     }
 
-    // ============================================================
-    // 8️⃣ UPDATE PAYMENT STATUS (ADMIN)
-    // ============================================================
+
+    //  UPDATE PAYMENT STATUS (ADMIN)
     @Transactional
     public OrderResponse updatePaymentStatus(Long orderId, PaymentStatus paymentStatus) {
         Order order = orderRepository.findById(orderId)
@@ -310,7 +302,7 @@ public class OrderService {
 
         order.setPaymentStatus(paymentStatus);
 
-        // ✅ If payment successful, confirm order
+        //  If payment successful, confirm order
         if(paymentStatus == PaymentStatus.PAID) {
             order.setStatus(OrderStatus.CONFIRMED);
         }
@@ -323,9 +315,8 @@ public class OrderService {
         return mapToResponse(updatedOrder, orderItems);
     }
 
-    // ============================================================
+
     // PRIVATE HELPERS
-    // ============================================================
     private String generateOrderNumber() {
         return "ORD-"+ UUID.randomUUID().toString().substring(0,8).toUpperCase();
     }

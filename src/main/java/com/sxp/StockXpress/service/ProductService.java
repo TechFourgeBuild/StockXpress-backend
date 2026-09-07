@@ -33,12 +33,11 @@ public class ProductService {
     private final UserService userService;
     private final InventoryLogService inventoryLogService;
 
-    // 🔥 ReentrantLock with Fairness Policy for bulk stock updates
+    //  ReentrantLock with Fairness Policy for bulk stock updates
     private final ReentrantLock bulkStockLock = new ReentrantLock(true);
 
-    // ============================================================
-    // 1️⃣ CREATE PRODUCT (ADMIN only)
-    // ============================================================
+
+    //  CREATE PRODUCT (ADMIN only)
     @Transactional
     public ProductResponse createProduct(ProductRequest request) {
         Product product = Product.builder()
@@ -55,18 +54,16 @@ public class ProductService {
         return mapToResponse(savedProduct);
     }
 
-    // ============================================================
-    // 2️⃣ GET PRODUCT BY ID
-    // ============================================================
+
+    //  GET PRODUCT BY ID
     public ProductResponse getProductById(Long id) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found with ID: " + id));
         return mapToResponse(product);
     }
 
-    // ============================================================
-    // 3️⃣ GET ALL PRODUCTS
-    // ============================================================
+
+    //  GET ALL PRODUCTS
     public List<ProductResponse> getAllProducts() {
         return productRepository.findAll()
                 .stream()
@@ -74,9 +71,8 @@ public class ProductService {
                 .collect(Collectors.toList());
     }
 
-    // ============================================================
-    // 4️⃣ GET PRODUCTS BY CATEGORY
-    // ============================================================
+
+    //  GET PRODUCTS BY CATEGORY
     public List<ProductResponse> getProductsByCategory(String category) {
         return productRepository.findByCategory(category)
                 .stream()
@@ -84,9 +80,8 @@ public class ProductService {
                 .collect(Collectors.toList());
     }
 
-    // ============================================================
-    // 5️⃣ UPDATE PRODUCT (ADMIN only)
-    // ============================================================
+
+    //  UPDATE PRODUCT (ADMIN only)
     @Transactional
     public ProductResponse updateProduct(Long id, ProductRequest request) {
         Product product = productRepository.findById(id)
@@ -103,9 +98,8 @@ public class ProductService {
         return mapToResponse(updatedProduct);
     }
 
-    // ============================================================
-    // 6️⃣ DELETE PRODUCT (ADMIN only)
-    // ============================================================
+
+    //  DELETE PRODUCT (ADMIN only)
     @Transactional
     public void deleteProduct(Long id) {
         Product product = productRepository.findById(id)
@@ -114,9 +108,8 @@ public class ProductService {
         log.info("🗑️ Product deleted: {} (ID: {})", product.getName(), product.getId());
     }
 
-    // ============================================================
-    // 7️⃣ 🔥 UPDATE STOCK — WITH OPTIMISTIC LOCKING & RETRY
-    // ============================================================
+
+    //  UPDATE STOCK — WITH OPTIMISTIC LOCKING & RETRY
     @Transactional
     @Retryable(
             value = OptimisticLockingFailureException.class,
@@ -124,16 +117,16 @@ public class ProductService {
             backoff = @Backoff(delay = 100)
     )
     public ProductResponse updateStock(Long productId, Integer newQuantity, String reason) {
-        // ✅ Fetch current user from SecurityContext
+        //  Fetch current user from SecurityContext
         User currentUser = getCurrentUser();
 
-        // ✅ Get product with version
+        //  Get product with version
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found with ID: " + productId));
 
         Integer oldQuantity = product.getAvailableQuantity();
 
-        // ✅ Update stock using version-based query
+        //  Update stock using version-based query
         int updatedRows = productRepository.updateStockWithVersion(
                 productId,
                 newQuantity,
@@ -147,12 +140,12 @@ public class ProductService {
             );
         }
 
-        // ✅ Refresh product to get updated version
+        //  Refresh product to get updated version
         Product updatedProduct = productRepository.findById(productId)
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found with ID: " + productId));
 
 
-        // ✅ Log inventory change
+        //  Log inventory change
         logInventoryChange(updatedProduct, currentUser, oldQuantity, newQuantity, reason);
 
         log.info("✅ Stock updated: {} (ID: {}) | {} → {} | Version: {}",
@@ -161,9 +154,8 @@ public class ProductService {
         return mapToResponse(updatedProduct);
     }
 
-    // ============================================================
-    // 8️⃣ 🔥 BULK STOCK UPDATE — WITH REENTRANTLOCK
-    // ============================================================
+
+    //  BULK STOCK UPDATE — WITH REENTRANTLOCK
     @Transactional
     public void bulkStockUpdate(List<StockUpdateRequest> updates) {
         User currentUser = getCurrentUser();
@@ -177,7 +169,7 @@ public class ProductService {
                     updateStock(request.getProductId(), request.getQuantity(), request.getReason());
                 } catch (OptimisticLockingFailureException e) {
                     log.error("❌ Failed to update product ID: {} - {}", request.getProductId(), e.getMessage());
-                    // ✅ Continue with other products
+
                 }
             }
 
@@ -188,9 +180,8 @@ public class ProductService {
         }
     }
 
-    // ============================================================
-    // 9️⃣ GET LOW STOCK PRODUCTS
-    // ============================================================
+
+    //  GET LOW STOCK PRODUCTS
     public List<ProductResponse> getLowStockProducts(int threshold) {
         return productRepository.findLowStockProducts(threshold)
                 .stream()
@@ -198,18 +189,16 @@ public class ProductService {
                 .collect(Collectors.toList());
     }
 
-    // ============================================================
-    // 🔟 GET PRODUCT ENTITY (For internal use)
-    // ============================================================
+
+    //  GET PRODUCT ENTITY (For internal use)
     public Product getProductEntity(Long id) {
         return productRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found with ID: " + id));
     }
 
-    // ============================================================
+
     // PRIVATE HELPERS
-    // ============================================================
-    private ProductResponse mapToResponse(Product product) {  // how this method is actually helping here
+    private ProductResponse mapToResponse(Product product) {
         return ProductResponse.builder()
                 .id(product.getId())
                 .name(product.getName())
@@ -224,7 +213,7 @@ public class ProductService {
     }
 
     private void logInventoryChange(Product product, User user, Integer oldQuantity,
-                                    Integer newQuantity, String reason) { // how this actually helping to the methods called in updateStock() ??
+                                    Integer newQuantity, String reason) {
         InventoryLog logEntry = InventoryLog.builder()
                 .product(product)
                 .changedBy(user)
@@ -244,7 +233,7 @@ public class ProductService {
     }
 
     // ✅ Inner class for bulk update request
-    public static class StockUpdateRequest {  // how this class is actually helping here and why it is here.
+    public static class StockUpdateRequest {
         private Long productId;
         private Integer quantity;
         private String reason;

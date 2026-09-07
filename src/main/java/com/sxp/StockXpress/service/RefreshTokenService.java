@@ -25,10 +25,8 @@ public class RefreshTokenService {
     @Value("${jwt.refresh.expiration}")
     private long refreshExpirationMs;
 
-    // ============================================================
-    // CONVERSION METHODS
-    // ============================================================
 
+    // CONVERSION METHODS
     private Date convertToDate(LocalDateTime localDateTime) {
         return Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
     }
@@ -39,9 +37,8 @@ public class RefreshTokenService {
                 .toLocalDateTime();
     }
 
-    // ============================================================
+
     // STEP A: LOGIN-TIME — creating new session family
-    // ============================================================
     public String createNewRefreshToken(User user) {
         String familyId = jwtUtil.generateSessionFamilyId();
         Date absoluteExpiry = new Date(System.currentTimeMillis() + refreshExpirationMs);
@@ -59,9 +56,8 @@ public class RefreshTokenService {
         return tokenString;
     }
 
-    // =========================================================
+
     // STEP B: 🌟 ROTATION LOGIC — sabse critical method
-    // =========================================================
     public RotationResult rotateRefreshToken(String oldTokenString) {
         RefreshToken oldToken = refreshTokenRepository.findByToken(oldTokenString).
                 orElseThrow(() -> new TokenRefreshException("Refresh token not found - please login again"));

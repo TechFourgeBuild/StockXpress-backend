@@ -25,13 +25,12 @@ public class InventoryLogService {
     private final ProductRepository productRepository;
     private final UserService userService;
 
-    // ============================================================
-    // 1️⃣ LOG A STOCK CHANGE (Internal Use)
-    // ============================================================
+
+    //  LOG A STOCK CHANGE (Internal Use)
     public void logStockChange(Long productId, Long userId, Integer oldQuantity,
                                Integer newQuantity, ChangeType changeType, String reason) {
 
-        // ✅ Directly fetch product from repository
+        //  Directly fetch product from repository
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found with ID: " + productId));
         User user = userService.getUserById(userId);
@@ -50,23 +49,21 @@ public class InventoryLogService {
                 product.getName(), oldQuantity, newQuantity, changeType, reason);
     }
 
-    // ============================================================
-    // 2️⃣ GET ALL LOGS FOR A PRODUCT
-    // ============================================================
+
+    //  GET ALL LOGS FOR A PRODUCT
     public List<InventoryLogResponse> getLogsByProduct(Long productId) {
-        // ✅ Verify product exists
+        //  Verify product exists
         return inventoryLogRepository.findByProductId(productId)
                 .stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }
 
-    // ============================================================
-    // 3️⃣ GET ALL LOGS FOR A USER
-    // ============================================================
+
+    //  GET ALL LOGS FOR A USER
     public List<InventoryLogResponse> getLogsByUser(Long userId) {
-        // ✅ Verify user exists
-        userService.getUserById(userId);   // why we are using it here cause we are not even holding it somewhere for usecase
+        //  Verify user exists
+        userService.getUserById(userId);
 
         return inventoryLogRepository.findByChangedById(userId)
                 .stream()
@@ -74,9 +71,8 @@ public class InventoryLogService {
                 .collect(Collectors.toList());
     }
 
-    // ============================================================
-    // 4️⃣ GET LOGS BY CHANGE TYPE
-    // ============================================================
+
+    //  GET LOGS BY CHANGE TYPE
     public List<InventoryLogResponse> getLogsByChangeType(ChangeType changeType) {
         return inventoryLogRepository.findByChangeType(changeType)
                 .stream()
@@ -84,11 +80,10 @@ public class InventoryLogService {
                 .collect(Collectors.toList());
     }
 
-    // ============================================================
-    // 5️⃣ GET LATEST LOG FOR A PRODUCT
-    // ============================================================
+
+    //  GET LATEST LOG FOR A PRODUCT
     public InventoryLogResponse getLatestLogByProduct(Long productId) {
-        // ✅ Verify product exists
+        //  Verify product exists
 //        productService.getProductEntity(productId);
 
         return inventoryLogRepository.findLatestLogByProductId(productId)
@@ -97,9 +92,8 @@ public class InventoryLogService {
                         "No inventory log found for product ID: " + productId));
     }
 
-    // ============================================================
-    // 6️⃣ GET ALL LOGS (ADMIN only)
-    // ============================================================
+
+    //  GET ALL LOGS (ADMIN only)
     public List<InventoryLogResponse> getAllLogs() {
         return inventoryLogRepository.findAll()
                 .stream()
@@ -107,11 +101,9 @@ public class InventoryLogService {
                 .collect(Collectors.toList());
     }
 
-    // ============================================================
+
     // PRIVATE HELPERS
-    // ============================================================
-    private InventoryLogResponse mapToResponse(InventoryLog log) { /* didn't understood that how it is helping to another methods of
-         this class*/
+    private InventoryLogResponse mapToResponse(InventoryLog log) {
         return InventoryLogResponse.builder()
                 .id(log.getId())
                 .productId(log.getProduct().getId())
