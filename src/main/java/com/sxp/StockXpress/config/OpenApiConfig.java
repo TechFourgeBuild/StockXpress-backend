@@ -20,13 +20,20 @@ public class OpenApiConfig {
 
     @Bean
     public OpenAPI customOpenAPI() {
+
+        //  PRODUCTION SERVER — DEPLOYED URL
+        Server productionServer = new Server();
+        productionServer.setUrl("https://stockxpress.duckdns.org");
+        productionServer.setDescription("Production Server (DuckDNS)");
+
+        //  LOCAL SERVER
+        Server localServer = new Server();
+        localServer.setUrl("http://localhost:8080");
+        localServer.setDescription("Local Development Server");
+
         return new OpenAPI()
                 .info(apiInfo())
-                .servers(List.of(
-                        new Server()
-                                .url("http://localhost:8080")
-                                .description("Local Development Server")
-                ))
+                .servers(List.of(productionServer, localServer))
                 .addSecurityItem(new SecurityRequirement().addList(SECURITY_SCHEME_NAME))
                 .components(new Components()
                         .addSecuritySchemes(SECURITY_SCHEME_NAME, bearerAuthScheme()));
@@ -49,6 +56,7 @@ public class OpenApiConfig {
 
                         ## Links
                         - Frontend (Live): https://stock-xpress-frontend.vercel.app
+                        - Backend (Live): https://stockxpress.duckdns.org
                         - Backend Repository: https://github.com/TechFourgeBuild/StockXpress-backend
                         - Frontend Repository: https://github.com/TechFourgeBuild/StockXpress-frontend
                         """)

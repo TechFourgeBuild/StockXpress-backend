@@ -1,5 +1,7 @@
 package com.sxp.StockXpress.exception;
 
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -25,6 +27,22 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Map<String, String>> handleBadCredentials(Exception ex) {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .body(Map.of("error", "Invalid email or password"));
+    }
+
+    //  Handle Expired JWT Token
+    @ExceptionHandler(ExpiredJwtException.class)
+    public ResponseEntity<Map<String, String>> handleExpiredJwt(ExpiredJwtException ex) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                // .body(Map.of("error", "Token expired. Please refresh your token or login again."));
+                .body(Map.of("error", "Please Login Again."));
+    }
+
+    //  Handle Invalid JWT Token
+    @ExceptionHandler(JwtException.class)
+    public ResponseEntity<Map<String, String>> handleInvalidJwt(JwtException ex) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                //.body(Map.of("error", "Invalid token. Please login again."));
+                .body(Map.of("error", "Please login again."));
     }
 
     //  Handle Duplicate Resource (Email already exists)
