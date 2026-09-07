@@ -108,7 +108,8 @@ public class AuthController {
     public ResponseEntity<AuthResponse> refreshToken(HttpServletRequest request,HttpServletResponse response) {
         String oldRefreshToken = cookieUtil.getRefreshTokenFromCookie(request);
         if (oldRefreshToken == null) {
-            throw new TokenRefreshException("Refresh token missing — please login again");
+            // throw new TokenRefreshException("Refresh token missing — please login again");
+            throw new TokenRefreshException("Session expired. Please sign in again.");
         }
 
         RefreshTokenService.RotationResult result =
