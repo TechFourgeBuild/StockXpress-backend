@@ -42,9 +42,8 @@ public class AuthController {
     @Autowired private PasswordEncoder passwordEncoder;
     @Autowired private UserService userService;
 
-    // ============================================================
-    // 1️⃣ REGISTER — naya user create karo
-    // ==================================
+
+    //  REGISTER — create new user
     @PostMapping("/register")
     @Operation(summary = "Register", description = "Registers a new user with CUSTOMER role")
     @ApiResponses(value = {
@@ -52,17 +51,17 @@ public class AuthController {
             @ApiResponse(responseCode = "400", description = "Email already exists")
     })
     public ResponseEntity<?> register(@RequestBody RegisterRequest registerRequest) {
-        // ✅ Check if email already exists
+        //  Check if email already exists
         if (userRepository.findByEmail(registerRequest.getEmail()).isPresent()) {
             throw new DuplicateResourceException("Email already registered!");
         }
 
-        // ✅ Create new user
+        //  Create new user
         User user = User.builder()
                 .name(registerRequest.getName())
                 .email(registerRequest.getEmail())
-                .password(passwordEncoder.encode(registerRequest.getPassword()))  // ✅ BCrypt encode
-                .role(Role.CUSTOMER)  // ✅ Default role
+                .password(passwordEncoder.encode(registerRequest.getPassword()))  //  BCrypt encode
+                .role(Role.CUSTOMER)  //  Default role
                 .build();
 
         userRepository.save(user);
@@ -70,10 +69,8 @@ public class AuthController {
         return ResponseEntity.ok("User registered successfully! Please login.");
     }
 
-    // ============================================================
-    // 2️⃣ LOGIN — issuing both access + refresh token
-    // ==================================
 
+    //  LOGIN — issuing both access + refresh token
     @PostMapping("/login")
     @Operation(summary = "Login", description = "Authenticates user and returns JWT access token with refresh token cookie")
     @ApiResponses(value = {
@@ -101,9 +98,8 @@ public class AuthController {
         ));
     }
 
-    // ============================================================
-    // 3️⃣  REFRESH — naya access-token lena, rotation ke saath
-    // ===========================================================
+
+    //  REFRESH — grab new accessToken, along with rotation
     @PostMapping("/refresh-token")
     public ResponseEntity<AuthResponse> refreshToken(HttpServletRequest request,HttpServletResponse response) {
         String oldRefreshToken = cookieUtil.getRefreshTokenFromCookie(request);
@@ -130,9 +126,8 @@ public class AuthController {
         return ResponseEntity.ok(new AuthResponse(newAccessToken));
     }
 
-    // ============================================================
-    // 4️⃣ LOGOUT
-    // ===========
+
+    //  LOGOUT
     @PostMapping("/logout")
     public ResponseEntity<?> logout(HttpServletRequest request , HttpServletResponse response) {
         String refreshToken = cookieUtil.getRefreshTokenFromCookie(request);

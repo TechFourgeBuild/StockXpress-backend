@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("api/v1/inventory")
+@RequestMapping("/api/v1/inventory")
 @RequiredArgsConstructor
 @Slf4j
 @Tag(name = "inventory-controller", description = "APIs for Audits and logs checking")
@@ -24,9 +24,8 @@ public class InventoryController {
 
     private final InventoryLogService inventoryLogService;
 
-    // ============================================================
-    // 🏭 WAREHOUSE + ADMIN — Get logs by product
-    // ============================================================
+
+    //  WAREHOUSE + ADMIN — Get logs by product
     @GetMapping("/logs/product/{productId}")
     @PreAuthorize("hasAnyRole('WAREHOUSE_MANAGER', 'ADMIN')")
     public ResponseEntity<List<InventoryLogResponse>> getLogsByProduct(@PathVariable Long productId) {
@@ -34,9 +33,8 @@ public class InventoryController {
         return ResponseEntity.ok(inventoryLogService.getLogsByProduct(productId));
     }
 
-    // ============================================================
-    // 🏭 WAREHOUSE + ADMIN — Get logs by user
-    // ============================================================
+
+    //  WAREHOUSE + ADMIN — Get logs by user
     @GetMapping("/logs/user/{userId}")
     @PreAuthorize("hasAnyRole('WAREHOUSE_MANAGER', 'ADMIN')")
     public ResponseEntity<List<InventoryLogResponse>> getLogsByUser(@PathVariable Long userId) {
@@ -44,19 +42,17 @@ public class InventoryController {
         return ResponseEntity.ok(inventoryLogService.getLogsByUser(userId));
     }
 
-    // ============================================================
-    // 🏭 WAREHOUSE + ADMIN — Get logs by change type
-    // ============================================================
-    @GetMapping("logs/type/{changeType}")
+
+    //  WAREHOUSE + ADMIN — Get logs by change type
+    @GetMapping("/logs/type/{changeType}")
     @PreAuthorize("hasAnyRole('WAREHOUSE_MANAGER', 'ADMIN')")
     public ResponseEntity<List<InventoryLogResponse>> getLogsByChangeType(@PathVariable ChangeType changeType) {
         log.info("📝 Fetching inventory logs by change type: {}", changeType);
         return ResponseEntity.ok(inventoryLogService.getLogsByChangeType(changeType));
     }
 
-    // ============================================================
-    // 🏭 WAREHOUSE + ADMIN — Get latest log for product
-    // ============================================================
+
+    //  WAREHOUSE + ADMIN — Get latest log for product
     @GetMapping("/logs/latest/{productId}")
     @PreAuthorize("hasAnyRole('WAREHOUSE_MANAGER', 'ADMIN')")
     public ResponseEntity<InventoryLogResponse> getLatestLogsByProduct(@PathVariable Long productId) {
@@ -64,9 +60,8 @@ public class InventoryController {
         return ResponseEntity.ok(inventoryLogService.getLatestLogByProduct(productId));
     }
 
-    // ============================================================
-    // 👑 ADMIN — Get all logs
-    // ============================================================
+
+    //  ADMIN — Get all logs
     @GetMapping("/logs/all")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<InventoryLogResponse>> getAllLogs() {

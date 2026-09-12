@@ -94,10 +94,9 @@ public class AdminController {
         return ResponseEntity.ok(adminService.getLowStockProductsCount(threshold));
     }
 
-    // ============================================================
-    // 📅 ADMIN — Get orders in last N days
-    // ============================================================
-    // ✅ Return List of Orders, not count
+
+    //  ADMIN — Get orders in last N days
+    //  Return List of Orders, not count
     @GetMapping("/orders/recent")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<OrderResponse>> getOrdersInLastDays(@RequestParam(defaultValue = "7") int days) {
@@ -120,8 +119,8 @@ public class AdminController {
     }
 
     // ============================================================
-// 👥 ADMIN — Get all users
-// ============================================================
+    // 👥 ADMIN — Get all users
+    // ============================================================
     @GetMapping("/users")
     public ResponseEntity<List<UserResponse>> getAllUsers() {
         log.info("👥 Admin fetching all users");

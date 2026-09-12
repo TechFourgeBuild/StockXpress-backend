@@ -25,9 +25,8 @@ public class OrderController {
 
     private final OrderService orderService;
 
-    // ============================================================
-    // 🔒 AUTHENTICATED — Place order
-    // ============================================================
+
+    //  AUTHENTICATED — Place order
     @PostMapping
     public ResponseEntity<OrderResponse> placeOrder(@Valid @RequestBody OrderRequest request) {
         log.info("🛒 placing new order");
@@ -35,45 +34,40 @@ public class OrderController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    // ============================================================
-    // 🔒 AUTHENTICATED — Get current user's orders
-    // ============================================================
+
+    //  AUTHENTICATED — Get current user's orders
     @GetMapping("/my-orders")
     public ResponseEntity<List<OrderResponse>> getMyOrders() {
         log.info("📦 Fetching current user's orders");
         return ResponseEntity.ok(orderService.getUserOrders());
     }
 
-    // ============================================================
-    // 🔒 AUTHENTICATED — Get order by ID
-    // ============================================================
+
+    //  AUTHENTICATED — Get order by ID
    @GetMapping("/{id}")
     public ResponseEntity<OrderResponse> getOrderById(@PathVariable Long id) {
         log.info("📦 Fetching order with ID: {}",id);
         return ResponseEntity.ok(orderService.getOrderById(id));
     }
 
-    // ============================================================
-    // 🔒 AUTHENTICATED — Get order by order number
-    // ============================================================
+
+    //  AUTHENTICATED — Get order by order number
     @GetMapping("/number/{orderNumber}")
     public ResponseEntity<OrderResponse> getOrderByNumber(@PathVariable String orderNumber) {
         log.info("📦 Fetching order with number: {}", orderNumber);
         return ResponseEntity.ok(orderService.getOrderByNumber(orderNumber));
     }
 
-    // ============================================================
-    // 🔒 AUTHENTICATED — Cancel order
-    // ============================================================
+
+    //  AUTHENTICATED — Cancel order
     @PatchMapping("/{id}/cancel")
     public ResponseEntity<OrderResponse> cancelOrder(@PathVariable Long id) {
         log.info("🗑️ Cancelling order with ID: {}", id);
         return ResponseEntity.ok(orderService.cancelOrder(id));
     }
 
-    // ============================================================
-    // 👑 ADMIN + WAREHOUSE — Get all orders
-    // ============================================================
+
+    //  ADMIN + WAREHOUSE — Get all orders
     @GetMapping("/all")
     @PreAuthorize("hasAnyRole('ADMIN', 'WAREHOUSE_MANAGER')")
     public ResponseEntity<List<OrderResponse>> getAllOrders() {
@@ -81,9 +75,8 @@ public class OrderController {
         return ResponseEntity.ok(orderService.getAllOrders());
     }
 
-    // ============================================================
-    // 👑 ADMIN + WAREHOUSE — Update order status
-    // ============================================================
+
+    //  ADMIN + WAREHOUSE — Update order status
     @PatchMapping("/{id}/status")
     @PreAuthorize("hasAnyRole('ADMIN', 'WAREHOUSE_MANAGER')")
     public ResponseEntity<OrderResponse> updateOrderStatus(
@@ -94,9 +87,8 @@ public class OrderController {
         return ResponseEntity.ok(orderService.updateOrderStatus(id, status));
     }
 
-    // ============================================================
-    // 👑 ADMIN — Update payment status
-    // ============================================================
+
+    //  ADMIN — Update payment status
     @PatchMapping("/{id}/payment")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<OrderResponse> updatePaymentStatus(

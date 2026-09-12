@@ -28,9 +28,8 @@ public class ProductController {
 
     private final ProductService productService;
 
-    // ============================================================
-    // 🔓 PUBLIC — Get all products
-    // ============================================================
+
+    //  PUBLIC — Get all products
     @GetMapping
     @Operation(
             summary = "Get all products",
@@ -45,27 +44,24 @@ public class ProductController {
         return ResponseEntity.ok(productService.getAllProducts());
     }
 
-    // ============================================================
-    // 🔓 PUBLIC — Get product by ID
-    // ============================================================
+
+    //  PUBLIC — Get product by ID
     @GetMapping("/{id}")
     public ResponseEntity<ProductResponse> getProductById(@PathVariable Long id) {
         log.info("📦 Fetching product with ID: {}", id);
         return ResponseEntity.ok(productService.getProductById(id));
     }
 
-    // ============================================================
-    // 🔓 PUBLIC — Get products by category
-    // ============================================================
+
+    //  PUBLIC — Get products by category
     @GetMapping("/category/{category}")
     public ResponseEntity<List<ProductResponse>> getProductsByCategory(@PathVariable String category) {
         log.info("📦 Fetching products by category: {}", category);
         return ResponseEntity.ok(productService.getProductsByCategory(category));
     }
 
-    // ============================================================
-    // 🔓 PUBLIC — Get low stock products
-    // ============================================================
+
+    //  PUBLIC — Get low stock products
     @GetMapping("/low-stock")
     public ResponseEntity<List<ProductResponse>> getLowStockProducts(
             @RequestParam(defaultValue = "5") int threshold) {
@@ -73,9 +69,8 @@ public class ProductController {
         return ResponseEntity.ok(productService.getLowStockProducts(threshold));
     }
 
-    // ============================================================
-    // 👑 ADMIN — Create product
-    // ============================================================
+
+    //  ADMIN — Create product
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(
@@ -95,9 +90,8 @@ public class ProductController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    // ============================================================
-    // 👑 ADMIN — Update product
-    // ============================================================
+
+    //  ADMIN — Update product
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ProductResponse> updateProduct(
@@ -107,9 +101,8 @@ public class ProductController {
         return ResponseEntity.ok(productService.updateProduct(id, request));
     }
 
-    // ============================================================
-    // 👑 ADMIN — Delete product
-    // ============================================================
+
+    //  ADMIN — Delete product
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteProduct(@PathVariable Long id) {
@@ -118,9 +111,8 @@ public class ProductController {
         return ResponseEntity.noContent().build();
     }
 
-    // ============================================================
-    // 🏭 WAREHOUSE + ADMIN — Update stock (with Optimistic Locking)
-    // ============================================================
+
+    //  WAREHOUSE + ADMIN — Update stock (with Optimistic Locking)
     @PatchMapping("/{id}/stock")
     @PreAuthorize("hasAnyRole('WAREHOUSE_MANAGER', 'ADMIN')")
     @Operation(
@@ -141,9 +133,8 @@ public class ProductController {
         return ResponseEntity.ok(productService.updateStock(id, quantity, reason));
     }
 
-    // ============================================================
-    // 🏭 WAREHOUSE + ADMIN — Bulk stock update (with ReentrantLock)
-    // ============================================================
+
+    //  WAREHOUSE + ADMIN — Bulk stock update (with ReentrantLock)
     @PatchMapping("/stock/bulk")
     @PreAuthorize("hasAnyRole('WAREHOUSE_MANAGER', 'ADMIN')")
     public ResponseEntity<Void> bulkStockUpdate(@RequestBody List<ProductService.StockUpdateRequest> updates) {
