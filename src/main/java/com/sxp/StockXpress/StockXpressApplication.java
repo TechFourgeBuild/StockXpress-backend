@@ -31,7 +31,6 @@ public class StockXpressApplication {
                 userRepository.save(admin);
                 System.out.println("✅ Default Admin created!");
                 System.out.println("📧 Email: admin@stockxpress.com");
-                System.out.println("🔑 Password: Admin@123");
             }
         };
     }
