@@ -114,6 +114,7 @@ public class SecurityConfig {
                                 "/api/v1/auth/login",   //  Login public
                                 "/api/v1/auth/refresh-token",  //  Refresh public (from cookie)
                                 "/api/v1/public/**",
+                                "/api/v1/ping",
 
                                 //  SWAGGER PATHS — API DOCS
                                 "/swagger-ui/**",
